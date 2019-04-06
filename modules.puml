@@ -1,0 +1,67 @@
+@startuml
+
+node "DATA WAREHOUSE" {
+    database warehouse
+}
+
+node "PAYMENTS" {
+    database "payments-db" as pdb
+    payments_api -> [payments]
+    payments_topic <-- [payments]
+    [payments] -up-> pdb
+}
+
+node "GATEWAY" {
+    database "gateway-db" as gdb
+    gateway_api -> [gateway]
+    gateway_topic <-- [gateway]
+    [gateway] -up-> gdb
+}
+
+node "EXTERNAL" {
+    external_api_3 -down-> [external_3]
+    external_api_2 -down-> [external_2]
+    external_api_1 -down-> [external_1]
+}
+
+node "USERS" {
+    database "users-db" as udb
+    users_api -> [users]
+    users_topic <-- [users]
+    [users] -up-> udb
+}
+
+node "ACCOUNTS" {
+    database "accounts-db" as adb
+    accounts_api -> [accounts]
+    accounts_topic <-- [accounts]
+    [accounts] -up-> adb
+}
+
+node "PRICING" {
+    database "pricing-db" as prdb
+    pricing_api --> [pricing]
+    [pricing] -up-> prdb
+}
+
+payments_topic -up-> warehouse
+gateway_topic -up-> warehouse
+users_topic -up-> warehouse
+accounts_topic -up-> warehouse
+
+payments --> gateway_api
+payments --> pricing_api
+payments --> accounts_api
+payments --> users_api
+gateway --> external_api_1
+gateway --> external_api_2
+gateway --> external_api_3
+
+note right of EXTERNAL
+Modulo externo al diseño para interactuar
+con provedores para la aprobación de pagos
+con tarjetas
+end note
+
+
+@enduml
